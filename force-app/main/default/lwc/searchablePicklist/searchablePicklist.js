@@ -10,6 +10,8 @@ export default class SearchablePicklist extends LightningElement {
     @track showDropdown = false;
     @track filteredOptions = [];
     
+    _isMovingFocusToDropdown = false;
+    
     connectedCallback() {
         if (this.initSearchValue) {
             this.inputText = this.initSearchValue;
@@ -57,6 +59,12 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleBlur(event) {
+        // If we're intentionally moving focus to dropdown, don't close it
+        if (this._isMovingFocusToDropdown) {
+            this._isMovingFocusToDropdown = false;
+            return;
+        }
+        
         setTimeout(() => {
             const relatedTarget = event.relatedTarget;
             const dropdown = this.template.querySelector('.dropdown-container');
@@ -86,6 +94,7 @@ export default class SearchablePicklist extends LightningElement {
         if (event.key === 'Tab' || event.key === 'ArrowDown') {
             if (this.showDropdown && this.filteredOptions.length > 0) {
                 event.preventDefault();
+                this._isMovingFocusToDropdown = true;
                 this.focusFirstOption();
             }
         } else if (event.key === 'Enter') {
