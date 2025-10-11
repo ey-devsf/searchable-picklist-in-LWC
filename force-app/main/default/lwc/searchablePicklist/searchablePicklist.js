@@ -11,6 +11,7 @@ export default class SearchablePicklist extends LightningElement {
     @track filteredOptions = [];
     
     _isMovingFocusToDropdown = false;
+    _justSelectedOption = false;
     
     connectedCallback() {
         if (this.initSearchValue) {
@@ -54,6 +55,12 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleFocus() {
+        // If we just selected an option, don't reopen the dropdown
+        if (this._justSelectedOption) {
+            this._justSelectedOption = false;
+            return;
+        }
+        
         this.filterOptions();
         this.showDropdown = true;
     }
@@ -170,6 +177,7 @@ export default class SearchablePicklist extends LightningElement {
         this.selectedOption = option;
         this.inputText = option.label;
         this.showDropdown = false;
+        this._justSelectedOption = true;
         this.focusSearchInput();
         
         this.dispatchEvent(new CustomEvent('optionselected', {
