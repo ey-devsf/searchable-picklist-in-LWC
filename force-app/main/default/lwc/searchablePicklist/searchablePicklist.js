@@ -66,16 +66,17 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleBlur(event) {
-        // If we're intentionally moving focus to dropdown, don't close it
-        if (this._isMovingFocusToDropdown) {
-            this._isMovingFocusToDropdown = false;
-            return;
-        }
-        
         setTimeout(() => {
+            // If we're intentionally moving focus to dropdown, don't close it or auto-select
+            if (this._isMovingFocusToDropdown) {
+                this._isMovingFocusToDropdown = false;
+                return;
+            }
+            
             const relatedTarget = event.relatedTarget;
             const dropdown = this.template.querySelector('.dropdown-container');
             
+            // Only close dropdown and auto-select if focus is NOT moving to the dropdown
             if (!relatedTarget || !dropdown || !dropdown.contains(relatedTarget)) {
                 const exactMatch = this.filteredOptions.filter(option => 
                     option.label.toLowerCase() === this.inputText.toLowerCase().trim()
