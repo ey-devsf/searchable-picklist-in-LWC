@@ -14,6 +14,9 @@ export default class SearchablePicklist extends LightningElement {
     _justSelectedOption = false;
     _justClosedFromDropdown = false;
     
+    // Delay for blur event handlers to allow relatedTarget to be set
+    BLUR_DELAY = 150;
+    
     connectedCallback() {
         if (this.initSearchValue) {
             this.inputText = this.initSearchValue;
@@ -86,15 +89,13 @@ export default class SearchablePicklist extends LightningElement {
             // Only close dropdown and auto-select if focus is NOT moving to the dropdown
             if (!relatedTarget || !dropdown || !dropdown.contains(relatedTarget)) {
                 const previousSelectedOption = this.selectedOption;
-                const exactMatch = this.filteredOptions.filter(option => 
-                    option.label.toLowerCase() === this.inputText.toLowerCase().trim()
-                );
                 
-                if (exactMatch.length === 1) {
-                    this.selectedOption = exactMatch[0];
-                    this.inputText = exactMatch[0].label;
+                // Auto-select if there's exactly one filtered option
+                if (this.filteredOptions.length === 1) {
+                    this.selectedOption = this.filteredOptions[0];
+                    this.inputText = this.filteredOptions[0].label;
                 } else {
-                    // No exact match found, clear selection
+                    // Multiple or no options, clear selection
                     this.selectedOption = null;
                 }
                 
@@ -105,7 +106,7 @@ export default class SearchablePicklist extends LightningElement {
                 
                 this.showDropdown = false;
             }
-        }, 150);
+        }, this.BLUR_DELAY);
     }
     
     handleInputChange(event) {
@@ -197,16 +198,20 @@ export default class SearchablePicklist extends LightningElement {
             
             // If focus is leaving the dropdown entirely (not going to another dropdown item)
             if (!movingToDropdown) {
+                const previousSelectedOption = this.selectedOption;
+                
                 // Auto-select if there's exactly one filtered option
                 if (this.filteredOptions.length === 1) {
-                    const previousSelectedOption = this.selectedOption;
                     this.selectedOption = this.filteredOptions[0];
                     this.inputText = this.filteredOptions[0].label;
-                    
-                    // Notify parent component if selection state changed
-                    if (previousSelectedOption !== this.selectedOption) {
-                        this.notifySelectionChange();
-                    }
+                } else {
+                    // Multiple or no options, clear selection
+                    this.selectedOption = null;
+                }
+                
+                // Notify parent component if selection state changed
+                if (previousSelectedOption !== this.selectedOption) {
+                    this.notifySelectionChange();
                 }
                 
                 this.showDropdown = false;
@@ -216,7 +221,7 @@ export default class SearchablePicklist extends LightningElement {
                     this._justClosedFromDropdown = true;
                 }
             }
-        }, 150);
+        }, this.BLUR_DELAY);
     }
     
     handleListMouseDown(event) {
