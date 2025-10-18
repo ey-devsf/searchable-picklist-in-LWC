@@ -31,9 +31,14 @@ export default class SearchablePicklistDemo extends LightningElement {
         { label: 'グレープフルーツ', value: 'grapefruit' }
     ];
     
-    handleOptionSelected(event) {
+    handleSelectionChange(event) {
         this.selectedOption = event.detail.selectedOption;
         console.log('Selected option:', this.selectedOption);
         console.log('Input text:', event.detail.inputText);
+
+        // 親コンポーネントで
+        const searchablePicklist = this.template.querySelector('c-searchable-picklist');
+        const currentInputText = searchablePicklist.getInputText(); // @apiがあるから呼び出し可能
+        console.log('Current input text from API:', currentInputText);
     }
 }

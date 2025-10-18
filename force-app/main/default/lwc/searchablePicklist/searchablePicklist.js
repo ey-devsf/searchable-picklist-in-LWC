@@ -78,6 +78,7 @@ export default class SearchablePicklist extends LightningElement {
             
             // Only close dropdown and auto-select if focus is NOT moving to the dropdown
             if (!relatedTarget || !dropdown || !dropdown.contains(relatedTarget)) {
+                const previousSelectedOption = this.selectedOption;
                 const exactMatch = this.filteredOptions.filter(option => 
                     option.label.toLowerCase() === this.inputText.toLowerCase().trim()
                 );
@@ -85,6 +86,14 @@ export default class SearchablePicklist extends LightningElement {
                 if (exactMatch.length === 1) {
                     this.selectedOption = exactMatch[0];
                     this.inputText = exactMatch[0].label;
+                } else {
+                    // No exact match found, clear selection
+                    this.selectedOption = null;
+                }
+                
+                // Notify parent component if selection state changed
+                if (previousSelectedOption !== this.selectedOption) {
+                    this.notifySelectionChange();
                 }
                 
                 this.showDropdown = false;
@@ -181,13 +190,19 @@ export default class SearchablePicklist extends LightningElement {
         this._justSelectedOption = true;
         this.focusSearchInput();
         
-        this.dispatchEvent(new CustomEvent('optionselected', {
+        this.notifySelectionChange();
+    }
+    
+    notifySelectionChange() {
+        this.dispatchEvent(new CustomEvent('selectionchange', {
             detail: {
                 selectedOption: this.selectedOption,
                 inputText: this.inputText
             }
         }));
     }
+
+    
     
     focusSearchInput() {
         const input = this.template.querySelector('[data-id="search-input"]');
