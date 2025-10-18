@@ -1,0 +1,45 @@
+<template>
+    <div class="searchable-picklist-container">
+        <div class="search-box-wrapper">
+            <input
+                type="text"
+                class="search-input"
+                placeholder="検索..."
+                value={inputText}
+                onfocus={handleFocus}
+                onblur={handleBlur}
+                oninput={handleInputChange}
+                onkeydown={handleInputKeyDown}
+                data-id="search-input"
+            />
+        </div>
+        
+        <template if:true={showDropdown}>
+            <div class="dropdown-container">
+                <ul class="dropdown-list" onmousedown={handleListMouseDown}>
+                    <template if:true={hasFilteredOptions}>
+                        <template for:each={filteredOptions} for:item="option" for:index="index">
+                            <li
+                                key={option.value}
+                                class="dropdown-item"
+                                data-value={option.value}
+                                data-label={option.label}
+                                data-index={index}
+                                onclick={handleOptionClick}
+                                onkeydown={handleOptionKeyDown}
+                                tabindex="0"
+                            >
+                                {option.label}
+                            </li>
+                        </template>
+                    </template>
+                    <template if:false={hasFilteredOptions}>
+                        <li class="dropdown-item no-results">
+                            結果が見つかりません
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+    </div>
+</template>
