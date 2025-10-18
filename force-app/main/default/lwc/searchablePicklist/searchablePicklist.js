@@ -12,6 +12,7 @@ export default class SearchablePicklist extends LightningElement {
     
     _isMovingFocusToDropdown = false;
     _justSelectedOption = false;
+    _justClosedFromDropdown = false;
     
     connectedCallback() {
         if (this.initSearchValue) {
@@ -58,6 +59,12 @@ export default class SearchablePicklist extends LightningElement {
         // If we just selected an option, don't reopen the dropdown
         if (this._justSelectedOption) {
             this._justSelectedOption = false;
+            return;
+        }
+        
+        // If we just closed from dropdown blur, don't reopen
+        if (this._justClosedFromDropdown) {
+            this._justClosedFromDropdown = false;
             return;
         }
         
@@ -177,6 +184,39 @@ export default class SearchablePicklist extends LightningElement {
             this.showDropdown = false;
             this.focusSearchInput();
         }
+    }
+    
+    handleOptionBlur(event) {
+        setTimeout(() => {
+            const relatedTarget = event.relatedTarget;
+            const dropdown = this.template.querySelector('.dropdown-container');
+            const searchInput = this.template.querySelector('[data-id="search-input"]');
+            
+            // Check if focus is moving to another dropdown item
+            const movingToDropdown = dropdown && relatedTarget && dropdown.contains(relatedTarget);
+            
+            // If focus is leaving the dropdown entirely (not going to another dropdown item)
+            if (!movingToDropdown) {
+                // Auto-select if there's exactly one filtered option
+                if (this.filteredOptions.length === 1) {
+                    const previousSelectedOption = this.selectedOption;
+                    this.selectedOption = this.filteredOptions[0];
+                    this.inputText = this.filteredOptions[0].label;
+                    
+                    // Notify parent component if selection state changed
+                    if (previousSelectedOption !== this.selectedOption) {
+                        this.notifySelectionChange();
+                    }
+                }
+                
+                this.showDropdown = false;
+                
+                // If focus is moving to the input, set flag to prevent reopening
+                if (searchInput && relatedTarget === searchInput) {
+                    this._justClosedFromDropdown = true;
+                }
+            }
+        }, 150);
     }
     
     handleListMouseDown(event) {
