@@ -13,6 +13,7 @@ export default class SearchablePicklist extends LightningElement {
     _isMovingFocusToDropdown = false;
     _justSelectedOption = false;
     _justClosedFromDropdown = false;
+    _isNavigatingWithinComponent = false;
     
     // Delay for blur event handlers to allow relatedTarget to be set
     BLUR_DELAY = 150;
@@ -168,6 +169,7 @@ export default class SearchablePicklist extends LightningElement {
             }
         } else if (event.key === 'Tab') {
             event.preventDefault();
+            this._isNavigatingWithinComponent = true;
             if (event.shiftKey) {
                 if (currentIndex === 0) {
                     this.focusSearchInput();
@@ -189,6 +191,12 @@ export default class SearchablePicklist extends LightningElement {
     
     handleOptionBlur(event) {
         setTimeout(() => {
+            // If we're navigating within the component with keyboard, don't close dropdown
+            if (this._isNavigatingWithinComponent) {
+                this._isNavigatingWithinComponent = false;
+                return;
+            }
+            
             const relatedTarget = event.relatedTarget;
             const dropdown = this.template.querySelector('.dropdown-container');
             const searchInput = this.template.querySelector('[data-id="search-input"]');
