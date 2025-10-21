@@ -12,6 +12,11 @@ export default class SearchablePicklist extends LightningElement {
     
     _isMovingFocusToDropdown = false;
     _justSelectedOption = false;
+    _justClosedFromDropdown = false;
+    _isNavigatingWithinComponent = false;
+    
+    // Delay for blur event handlers to allow relatedTarget to be set
+    BLUR_DELAY = 150;
     
     connectedCallback() {
         if (this.initSearchValue) {
@@ -61,6 +66,12 @@ export default class SearchablePicklist extends LightningElement {
             return;
         }
         
+        // If we just closed from dropdown blur, don't reopen
+        if (this._justClosedFromDropdown) {
+            this._justClosedFromDropdown = false;
+            return;
+        }
+        
         this.filterOptions();
         this.showDropdown = true;
     }
@@ -79,15 +90,13 @@ export default class SearchablePicklist extends LightningElement {
             // Only close dropdown and auto-select if focus is NOT moving to the dropdown
             if (!relatedTarget || !dropdown || !dropdown.contains(relatedTarget)) {
                 const previousSelectedOption = this.selectedOption;
-                const exactMatch = this.filteredOptions.filter(option => 
-                    option.label.toLowerCase() === this.inputText.toLowerCase().trim()
-                );
                 
-                if (exactMatch.length === 1) {
-                    this.selectedOption = exactMatch[0];
-                    this.inputText = exactMatch[0].label;
+                // Auto-select if there's exactly one filtered option
+                if (this.filteredOptions.length === 1) {
+                    this.selectedOption = this.filteredOptions[0];
+                    this.inputText = this.filteredOptions[0].label;
                 } else {
-                    // No exact match found, clear selection
+                    // Multiple or no options, clear selection
                     this.selectedOption = null;
                 }
                 
@@ -98,7 +107,7 @@ export default class SearchablePicklist extends LightningElement {
                 
                 this.showDropdown = false;
             }
-        }, 150);
+        }, this.BLUR_DELAY);
     }
     
     handleInputChange(event) {
@@ -146,6 +155,7 @@ export default class SearchablePicklist extends LightningElement {
             }
         } else if (event.key === 'ArrowUp') {
             event.preventDefault();
+            this._isNavigatingWithinComponent = true;
             if (currentIndex === 0) {
                 this.focusSearchInput();
             } else {
@@ -153,6 +163,7 @@ export default class SearchablePicklist extends LightningElement {
             }
         } else if (event.key === 'ArrowDown') {
             event.preventDefault();
+            this._isNavigatingWithinComponent = true;
             if (currentIndex === totalOptions - 1) {
                 this.focusSearchInput();
             } else {
@@ -160,6 +171,7 @@ export default class SearchablePicklist extends LightningElement {
             }
         } else if (event.key === 'Tab') {
             event.preventDefault();
+            this._isNavigatingWithinComponent = true;
             if (event.shiftKey) {
                 if (currentIndex === 0) {
                     this.focusSearchInput();
@@ -177,6 +189,49 @@ export default class SearchablePicklist extends LightningElement {
             this.showDropdown = false;
             this.focusSearchInput();
         }
+    }
+    
+    handleOptionBlur(event) {
+        setTimeout(() => {
+            // If we're navigating within the component with keyboard, don't close dropdown
+            if (this._isNavigatingWithinComponent) {
+                this._isNavigatingWithinComponent = false;
+                return;
+            }
+            
+            const relatedTarget = event.relatedTarget;
+            const dropdown = this.template.querySelector('.dropdown-container');
+            const searchInput = this.template.querySelector('[data-id="search-input"]');
+            
+            // Check if focus is moving to another dropdown item
+            const movingToDropdown = dropdown && relatedTarget && dropdown.contains(relatedTarget);
+            
+            // If focus is leaving the dropdown entirely (not going to another dropdown item)
+            if (!movingToDropdown) {
+                const previousSelectedOption = this.selectedOption;
+                
+                // Auto-select if there's exactly one filtered option
+                if (this.filteredOptions.length === 1) {
+                    this.selectedOption = this.filteredOptions[0];
+                    this.inputText = this.filteredOptions[0].label;
+                } else {
+                    // Multiple or no options, clear selection
+                    this.selectedOption = null;
+                }
+                
+                // Notify parent component if selection state changed
+                if (previousSelectedOption !== this.selectedOption) {
+                    this.notifySelectionChange();
+                }
+                
+                this.showDropdown = false;
+                
+                // If focus is moving to the input, set flag to prevent reopening
+                if (searchInput && relatedTarget === searchInput) {
+                    this._justClosedFromDropdown = true;
+                }
+            }
+        }, this.BLUR_DELAY);
     }
     
     handleListMouseDown(event) {
