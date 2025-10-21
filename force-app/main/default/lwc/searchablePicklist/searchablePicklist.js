@@ -155,6 +155,7 @@ export default class SearchablePicklist extends LightningElement {
             }
         } else if (event.key === 'ArrowUp') {
             event.preventDefault();
+            this._isNavigatingWithinComponent = true;
             if (currentIndex === 0) {
                 this.focusSearchInput();
             } else {
@@ -162,6 +163,7 @@ export default class SearchablePicklist extends LightningElement {
             }
         } else if (event.key === 'ArrowDown') {
             event.preventDefault();
+            this._isNavigatingWithinComponent = true;
             if (currentIndex === totalOptions - 1) {
                 this.focusSearchInput();
             } else {
