@@ -199,6 +199,11 @@ export default class SearchablePicklist extends LightningElement {
                 return;
             }
             
+            // If we just selected an option, don't auto-deselect
+            if (this._justSelectedOption) {
+                return;
+            }
+            
             const relatedTarget = event.relatedTarget;
             const dropdown = this.template.querySelector('.dropdown-container');
             const searchInput = this.template.querySelector('[data-id="search-input"]');
