@@ -14,10 +14,9 @@ export default class SearchablePicklist extends LightningElement {
     _justSelectedOption = false;
     _justClosedFromDropdown = false;
     _isNavigatingWithinComponent = false;
-    
-    // Delay for blur event handlers to allow relatedTarget to be set
-    BLUR_DELAY = 150;
-    
+    _isEnterKeyPressed = false;
+    _isFocusOnInputBox = false;
+
     connectedCallback() {
         if (this.initSearchValue) {
             this.inputText = this.initSearchValue;
@@ -60,6 +59,7 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleFocus() {
+        this._isFocusOnInputBox = true;
         // If we just selected an option, don't reopen the dropdown
         if (this._justSelectedOption) {
             this._justSelectedOption = false;
@@ -77,10 +77,15 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleBlur(event) {
+        this._isFocusOnInputBox = false;
         setTimeout(() => {
             // If we're intentionally moving focus to dropdown, don't close it or auto-select
             if (this._isMovingFocusToDropdown) {
                 this._isMovingFocusToDropdown = false;
+                return;
+            }
+
+            if (!this.showDropdown) {
                 return;
             }
             
@@ -99,7 +104,7 @@ export default class SearchablePicklist extends LightningElement {
                     // Multiple or no options, clear selection
                     this.selectedOption = null;
                 }
-                
+
                 // Notify parent component if selection state changed
                 if (previousSelectedOption !== this.selectedOption) {
                     this.notifySelectionChange();
@@ -107,7 +112,7 @@ export default class SearchablePicklist extends LightningElement {
                 
                 this.showDropdown = false;
             }
-        }, this.BLUR_DELAY);
+        }, 100);
     }
     
     handleInputChange(event) {
@@ -148,6 +153,7 @@ export default class SearchablePicklist extends LightningElement {
         
         if (event.key === 'Enter') {
             event.preventDefault();
+            this._isEnterKeyPressed = true;
             const value = event.currentTarget.dataset.value;
             const option = this.options.find(opt => opt.value === value);
             if (option) {
@@ -208,30 +214,37 @@ export default class SearchablePicklist extends LightningElement {
             
             // If focus is leaving the dropdown entirely (not going to another dropdown item)
             if (!movingToDropdown) {
-                const previousSelectedOption = this.selectedOption;
                 
-                // Auto-select if there's exactly one filtered option
-                if (this.filteredOptions.length === 1) {
-                    this.selectedOption = this.filteredOptions[0];
-                    this.inputText = this.filteredOptions[0].label;
+                if (!this._isEnterKeyPressed) {
+                    const previousSelectedOption = this.selectedOption;
+                    
+                    // Auto-select if there's exactly one filtered option
+                    if (this.filteredOptions.length === 1) {
+                        this.selectedOption = this.filteredOptions[0];
+                        this.inputText = this.filteredOptions[0].label;
+                    } else {
+                        // Multiple or no options, clear selection
+                        this.selectedOption = null;
+                    }
+                    
+                    // Notify parent component if selection state changed
+                    if (previousSelectedOption !== this.selectedOption) {
+                        this.notifySelectionChange();
+                    }
                 } else {
-                    // Multiple or no options, clear selection
-                    this.selectedOption = null;
+                    this._isEnterKeyPressed = false;
                 }
                 
-                // Notify parent component if selection state changed
-                if (previousSelectedOption !== this.selectedOption) {
-                    this.notifySelectionChange();
+                if (!this._isFocusOnInputBox) {
+                    this.showDropdown = false;
                 }
-                
-                this.showDropdown = false;
                 
                 // If focus is moving to the input, set flag to prevent reopening
                 if (searchInput && relatedTarget === searchInput) {
                     this._justClosedFromDropdown = true;
                 }
             }
-        }, this.BLUR_DELAY);
+        }, 0);
     }
     
     handleListMouseDown(event) {
