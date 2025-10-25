@@ -58,7 +58,7 @@ export default class SearchablePicklist extends LightningElement {
         }
     }
     
-    handleFocus() {
+    handleInputFocus() {
         this._isFocusOnInputBox = true;
         // If we just selected an option, don't reopen the dropdown
         if (this._justSelectedOption) {
@@ -76,7 +76,7 @@ export default class SearchablePicklist extends LightningElement {
         this.showDropdown = true;
     }
     
-    handleBlur(event) {
+    handleInputBlur(event) {
         this._isFocusOnInputBox = false;
         setTimeout(() => {
             // If we're intentionally moving focus to dropdown, don't close it or auto-select
