@@ -121,6 +121,13 @@ export default class SearchablePicklist extends LightningElement {
         this.showDropdown = true;
     }
     
+    handleInputKeyUp(event) {
+        // For real-time search filtering as user types
+        this.inputText = event.target.value;
+        this.filterOptions();
+        this.showDropdown = true;
+    }
+    
     handleInputKeyDown(event) {
         if (event.key === 'Tab' || event.key === 'ArrowDown') {
             if (this.showDropdown && this.filteredOptions.length > 0) {
