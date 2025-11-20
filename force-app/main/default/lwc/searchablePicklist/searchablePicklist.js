@@ -116,7 +116,7 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleInputChange(event) {
-        this.inputText = event.target.value;
+        this.inputText = event.detail.value;
         this.filterOptions();
         this.showDropdown = true;
     }
@@ -240,7 +240,7 @@ export default class SearchablePicklist extends LightningElement {
                 }
                 
                 // If focus is moving to the input, set flag to prevent reopening
-                if (searchInput && relatedTarget === searchInput) {
+                if (searchInput && (relatedTarget === searchInput || searchInput.contains(relatedTarget))) {
                     this._justClosedFromDropdown = true;
                 }
             }
