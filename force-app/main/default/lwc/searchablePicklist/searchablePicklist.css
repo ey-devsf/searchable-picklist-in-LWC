@@ -9,6 +9,15 @@
 
 .search-input {
     width: 100%;
+}
+
+/* Override lightning-input styling to match original design */
+.search-input lightning-input {
+    width: 100%;
+}
+
+.search-input input {
+    width: 100%;
     padding: 0.5rem;
     font-size: 1rem;
     border: 1px solid #d8dde6;
@@ -17,7 +26,7 @@
     background-color: white;
 }
 
-.search-input:focus {
+.search-input input:focus {
     outline: none;
     border-color: #1589ee;
     box-shadow: 0 0 3px #1589ee;

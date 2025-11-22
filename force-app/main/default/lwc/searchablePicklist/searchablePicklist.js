@@ -116,9 +116,14 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleInputChange(event) {
-        this.inputText = event.target.value;
+        this.inputText = event.detail.value;
         this.filterOptions();
         this.showDropdown = true;
+    }
+    
+    handleInputKeyUp(event) {
+        this.inputText = event.target.value;
+        this.filterOptions();
     }
     
     handleInputKeyDown(event) {
@@ -240,7 +245,7 @@ export default class SearchablePicklist extends LightningElement {
                 }
                 
                 // If focus is moving to the input, set flag to prevent reopening
-                if (searchInput && relatedTarget === searchInput) {
+                if (searchInput && (relatedTarget === searchInput || searchInput.contains(relatedTarget))) {
                     this._justClosedFromDropdown = true;
                 }
             }
@@ -275,6 +280,7 @@ export default class SearchablePicklist extends LightningElement {
     focusSearchInput() {
         const input = this.template.querySelector('[data-id="search-input"]');
         if (input) {
+            // lightning-input has a focus() method
             input.focus();
         }
     }
