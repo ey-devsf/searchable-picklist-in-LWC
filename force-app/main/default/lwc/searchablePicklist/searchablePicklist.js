@@ -122,11 +122,8 @@ export default class SearchablePicklist extends LightningElement {
     }
     
     handleInputKeyUp(event) {
-        // For real-time search filtering as user types
-        // Use event.target.value for keyup event which fires on the native input element
         this.inputText = event.target.value;
         this.filterOptions();
-        this.showDropdown = true;
     }
     
     handleInputKeyDown(event) {
