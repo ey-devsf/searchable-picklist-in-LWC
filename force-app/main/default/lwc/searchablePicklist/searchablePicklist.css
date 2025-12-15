@@ -50,6 +50,7 @@
 .search-input input {
     width: 100%;
     padding: 0.5rem;
+    padding-right: 2.5rem; /* Make space for the clear button */
     font-size: 1rem;
     border: 1px solid #d8dde6;
     border-radius: 0.25rem;
