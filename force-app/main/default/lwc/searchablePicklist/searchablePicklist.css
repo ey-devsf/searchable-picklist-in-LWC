@@ -7,6 +7,37 @@
     position: relative;
 }
 
+.clear-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #706e6b;
+    cursor: pointer;
+    padding: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.clear-button:hover {
+    background-color: #f3f3f3;
+    color: #3e3e3c;
+}
+
+.clear-button:focus {
+    outline: 2px solid #1589ee;
+    outline-offset: 2px;
+}
+
 .search-input {
     width: 100%;
 }
@@ -19,6 +50,7 @@
 .search-input input {
     width: 100%;
     padding: 0.5rem;
+    padding-right: 2.5rem; /* Make space for the clear button */
     font-size: 1rem;
     border: 1px solid #d8dde6;
     border-radius: 0.25rem;
