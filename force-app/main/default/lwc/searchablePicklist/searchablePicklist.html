@@ -15,6 +15,17 @@
                 onkeydown={handleInputKeyDown}
                 data-id="search-input"
             ></lightning-input>
+            <template if:true={inputText}>
+                <button
+                    class="clear-button"
+                    type="button"
+                    title="クリア"
+                    onclick={handleClearInput}
+                    onmousedown={handleClearMouseDown}
+                >
+                    ×
+                </button>
+            </template>
         </div>
         
         <template if:true={showDropdown}>

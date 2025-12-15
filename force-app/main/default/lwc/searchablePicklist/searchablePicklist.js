@@ -256,6 +256,24 @@ export default class SearchablePicklist extends LightningElement {
         event.preventDefault();
     }
     
+    handleClearMouseDown(event) {
+        // Prevent the input from losing focus when clicking the clear button
+        event.preventDefault();
+    }
+    
+    handleClearInput() {
+        this.inputText = '';
+        this.selectedOption = null;
+        this.filterOptions();
+        this.showDropdown = true;
+        
+        // Notify parent component of the change
+        this.notifySelectionChange();
+        
+        // Focus back on the input
+        this.focusSearchInput();
+    }
+    
     selectOption(option) {
         this.selectedOption = option;
         this.inputText = option.label;
