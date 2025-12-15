@@ -10,17 +10,19 @@
 .clear-button {
     position: absolute;
     right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0;
+    bottom: 0;
+    margin: auto;
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    font-family: Arial, sans-serif;
     color: #706e6b;
     cursor: pointer;
     padding: 0;
     width: 1.5rem;
     height: 1.5rem;
-    line-height: 1;
+    line-height: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
